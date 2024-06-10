@@ -1,6 +1,7 @@
 import numpy as np
 import anndata as ad
 import matplotlib.pyplot as plt
+import warnings
 
 class SingleCellSpectralData:
     def __init__(self, spectral_data, cell_ids, n_spectral_channels=None):
@@ -43,7 +44,8 @@ class SingleCellSpectralData:
             raise ValueError("Layer dimensions must match the existing spectral data dimensions.")
         
         if not np.array_equal(self.cell_ids, np.arange(n_cells)):
-            raise ValueError("Cell IDs do not match. Layer not added.")
+            warnings.warn("Cell IDs do not match. Layer not added.")
+            return
         
         self.data.layers[layer_name] = spectral_data_layer.reshape(n_cells, -1)
 
@@ -71,7 +73,10 @@ class SingleCellSpectralData:
             spectral_data = self.data.X[idx]
         
         spectral_data = spectral_data.reshape(n_pixels, self.data.uns['n_spectral_channels'])
-        return spectral_data[:, channel].reshape(int(np.sqrt(n_pixels)), int(np.sqrt(n_pixels)))
+        side_length = int(np.sqrt(n_pixels))
+        if side_length * side_length != n_pixels:
+            raise ValueError("Number of pixels is not a perfect square, cannot reshape to 2D.")
+        return spectral_data[:, channel].reshape(side_length, side_length)
 
     def visualize_image(self, cell_id, channel, layer=None):
         """
