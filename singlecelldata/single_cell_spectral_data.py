@@ -9,14 +9,14 @@ class SingleCellSpectralData:
         Initialize the SingleCellSpectralData object.
 
         Parameters:
-        spectral_data (np.ndarray): 4D array with shape (n_cells, n_pixels, n_pixels, n_spectral_channels).
+        spectral_data (np.ndarray): 3D array with shape (n_cells, n_pixels, n_spectral_channels).
         cell_ids (np.ndarray): 1D array with shape (n_cells,).
         time_points (np.ndarray): 1D array with shape (n_cells,).
         n_channels (Optional[int]): Number of spectral channels. If not provided, inferred from spectral_data.
         """
-        self.spectral_data = spectral_data
-        self.cell_ids = cell_ids
-        self.time_points = time_points
+        self.spectral_data = spectral_data  # Store spectral data
+        self.cell_ids = cell_ids  # Store cell IDs
+        self.time_points = time_points  # Store time points
         
         # If number of spectral channels is not provided, infer from the data
         self.n_channels = n_channels if n_channels is not None else spectral_data.shape[-1]
@@ -41,7 +41,7 @@ class SingleCellSpectralData:
 
         Parameters:
         layer_name (str): Name of the new layer.
-        layer_data (np.ndarray): 4D array with shape (n_cells, n_pixels, n_pixels, n_spectral_channels).
+        layer_data (np.ndarray): 3D array with shape (n_cells, n_pixels, n_spectral_channels).
         """
         # Ensure new layer has the same shape as existing data, except for the spectral channel dimension
         if layer_data.shape[:-1] != self.spectral_data.shape[:-1]:
@@ -64,17 +64,17 @@ class SingleCellSpectralData:
             layer = input("Multiple layers detected. Please specify a layer: ")
         if layer is None or layer == 'default':
             layer = 'default'
-            image = self.spectral_data[np.where(self.cell_ids == cell_id)[0][0], :, :, :]
+            image = self.spectral_data[np.where(self.cell_ids == cell_id)[0][0], :, :]
         else:
-            image = self.layers[layer][np.where(self.cell_ids == cell_id)[0][0], :, :, :]
+            image = self.layers[layer][np.where(self.cell_ids == cell_id)[0][0], :, :]
         
         if kind == 'RGB' and image.shape[-1] >= 3:
-            plt.imshow(image[:, :, :3])
+            plt.imshow(image[:, :3])
             plt.title(f'Cell ID: {cell_id}, Layer: {layer}, RGB Image')
         else:
             if channel is None:
                 channel = int(input(f"Specify the channel to visualize (0 to {self.n_channels - 1}): "))
-            plt.imshow(image[:, :, channel], cmap='viridis')
+            plt.imshow(image[:, channel], cmap='viridis')
             plt.title(f'Cell ID: {cell_id}, Channel: {channel}, Layer: {layer}')
         
         plt.colorbar()
@@ -94,9 +94,9 @@ class SingleCellSpectralData:
         """
         idx = np.where(self.cell_ids == cell_id)[0][0]
         if layer == 'default':
-            return self.spectral_data[idx, :, :, channel]
+            return self.spectral_data[idx, :, channel]
         else:
-            return self.layers[layer][idx, :, :, channel]
+            return self.layers[layer][idx, :, channel]
 
     def get_hyperspectral_data(self, cell_id: int, layer: Optional[str] = None) -> pd.DataFrame:
         """
@@ -113,10 +113,10 @@ class SingleCellSpectralData:
             layer = input("Multiple layers detected. Please specify a layer: ")
         if layer is None or layer == 'default':
             idx = np.where(self.cell_ids == cell_id)[0][0]
-            spectral_data = {f'Channel_{i}': self.spectral_data[idx, :, :, i].flatten() for i in range(self.n_channels)}
+            spectral_data = {f'Channel_{i}': self.spectral_data[idx, :, i] for i in range(self.n_channels)}
         else:
             idx = np.where(self.cell_ids == cell_id)[0][0]
-            spectral_data = {f'{layer}_Channel_{i}': self.layers[layer][idx, :, :, i].flatten() for i in range(self.n_channels)}
+            spectral_data = {f'{layer}_Channel_{i}': self.layers[layer][idx, :, i] for i in range(self.n_channels)}
         
         df = pd.DataFrame(spectral_data)
         return df
