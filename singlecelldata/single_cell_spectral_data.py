@@ -200,3 +200,17 @@ def _smooth_spectra_maw(self, spectra: np.ndarray, window_size: int) -> np.ndarr
     """
     # Implement smoothing logic here
     pass
+
+def _normalize_data(self, min_val: float = 0.0, max_val: float = 1.0):
+        """
+        Normalize the spectral data to a specified range.
+
+        Parameters:
+        min_val (float): Minimum value of the normalized range. Default is 0.0.
+        max_val (float): Maximum value of the normalized range. Default is 1.0.
+        """
+        data_min = np.min(self.spectral_data)
+        data_max = np.max(self.spectral_data)
+        self.spectral_data = (self.spectral_data - data_min) / (data_max - data_min) * (max_val - min_val) + min_val
+
+  
