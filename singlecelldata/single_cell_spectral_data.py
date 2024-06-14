@@ -167,3 +167,36 @@ class SingleCellSpectralData:
         self.time_points = adata.obs['time'].to_numpy()
         self.spectral_data = adata.layers['default'].reshape(len(self.cell_ids), -1, self.n_channels)
         self.layers = {k: v.reshape(len(self.cell_ids), -1, self.n_channels) for k, v in adata.layers.items() if k != 'default'}
+
+def normalize_nir(self, layer: Optional[str] = None):
+    """
+    Normalize NIR spectral data.
+
+    Parameters:
+    layer (Optional[str]): Name of the layer to normalize. If not provided, defaults to 'default'.
+    """
+    if layer is None or layer == 'default':
+        self.spectral_data = self._normalize_spectra(self.spectral_data)
+    else:
+        self.layers[layer] = self._normalize_spectra(self.layers[layer])
+
+def _normalize_spectra(self, spectra: np.ndarray) -> np.ndarray:
+    """
+    Normalize NIR spectra using min-max normalization.
+    """
+    # Implement normalization logic here
+    pass
+
+def _baseline_correction_polynomial_fit(self, spectra: np.ndarray) -> np.ndarray:
+    """
+    Perform baseline correction on vibrational spectra using polynomial fitting.
+    """
+    # Implement baseline correction logic here
+    pass
+
+def _smooth_spectra_maw(self, spectra: np.ndarray, window_size: int) -> np.ndarray:
+    """
+    Apply smoothing to vibrational spectra using a moving average window.
+    """
+    # Implement smoothing logic here
+    pass
